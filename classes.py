@@ -2,17 +2,13 @@
 Challenge code
 """
 
-import logging
-
-logger = logging.getLogger()
-
 
 class FenwickTree:
     """
     Fenwick Tree data structure for efficient range queries and updates.
     """
 
-    def __init__(self, size):
+    def __init__(self, size: int) -> None:
         """
         Initialize a FenwickTree with a given size.
 
@@ -22,7 +18,7 @@ class FenwickTree:
         self.size = size
         self.tree = [0] * (size + 1)
 
-    def update(self, index, delta):
+    def update(self, index: int, delta: int) -> None:
         """
         Update the Fenwick Tree by adding a delta value at a specific index.
 
@@ -37,7 +33,7 @@ class FenwickTree:
             self.tree[index] += delta
             index += index & -index
 
-    def query(self, index):
+    def query(self, index: int) -> int:
         """
         Query the prefix sum up to a specific index.
 
@@ -62,7 +58,8 @@ class DataStats:
     DataStats object for querying statistics about the inputs in a DataCapture object.
     """
 
-    def __init__(self, tree_less, tree_between, tree_greater, biggest_number):
+    def __init__(self, tree_less: FenwickTree, tree_between: FenwickTree,
+                 tree_greater: FenwickTree, biggest_number: int) -> None:
         """
         Initialize a DataStats object with Fenwick Trees.
 
@@ -76,7 +73,7 @@ class DataStats:
         self.tree_greater = tree_greater
         self.biggest_number = biggest_number
 
-    def less(self, value):
+    def less(self, value: int) -> int:
         """
         Query how many numbers in the collection are less than a specific value.
 
@@ -88,7 +85,7 @@ class DataStats:
         """
         return self.tree_less.query(value - 1)
 
-    def between(self, lower, upper):
+    def between(self, lower: int, upper: int) -> int:
         """
         Query how many numbers in the collection are within a specific range.
 
@@ -102,7 +99,7 @@ class DataStats:
 
         return self.tree_between.query(upper) - self.tree_between.query(lower - 1)
 
-    def greater(self, value):
+    def greater(self, value: int) -> int:
         """
         Query how many numbers in the collection are greater than a specific value.
 
@@ -122,7 +119,7 @@ class DataCapture:
 
     biggest_number = 999
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Initialize a DataCapture object.
         """
@@ -131,7 +128,7 @@ class DataCapture:
         self.tree_greater = FenwickTree(self.biggest_number)
         self.tree_between = FenwickTree(self.biggest_number)
 
-    def add(self, num):
+    def add(self, num: int) -> None:
         """
         Add a number to the DataCapture object.
 
@@ -143,7 +140,7 @@ class DataCapture:
         self.tree_greater.update(num, 1)
         self.tree_between.update(num, 1)
 
-    def build_stats(self):
+    def build_stats(self) -> DataStats:
         """
         Build statistics object based on the current state of the DataCapture object.
 
