@@ -2,114 +2,70 @@
 Challenge code
 """
 
-
-class FenwickTree:
-    """
-    Fenwick Tree data structure for efficient range queries and updates.
-    """
-
-    def __init__(self, size: int) -> None:
-        """
-        Initialize a FenwickTree with a given size.
-
-        Args:
-            size (int): The size of the Fenwick Tree.
-        """
-        self.size = size
-        self.tree = [0] * (size + 1)
-
-    def update(self, index: int, delta: int) -> None:
-        """
-        Update the Fenwick Tree by adding a delta value at a specific index.
-
-        Args:
-            index (int): The index to update.
-            delta (int): The value to add at the specified index.
-        """
-        if index > self.size:
-            raise ValueError(f"Number {index} outside range \n"
-                             f"Range is: [0 - {self.size}]")
-        while index <= self.size:
-            self.tree[index] += delta
-            index += index & -index
-
-    def query(self, index: int) -> int:
-        """
-        Query the prefix sum up to a specific index.
-
-        Args:
-            index (int): The index for the prefix sum query.
-
-        Returns:
-            int: The prefix sum up to the specified index.
-        """
-        if index > self.size:
-            raise ValueError(f"Number {index} outside range \n"
-                             f"Range is: [0 - {self.size}]")
-        result = 0
-        while index > 0:
-            result += self.tree[index]
-            index -= index & -index
-        return result
+from typing import List
 
 
 class DataStats:
     """
-    DataStats object for querying statistics about the inputs in a DataCapture object.
+    Class that Calculates statistics for the data
     """
 
-    def __init__(self, tree_less: FenwickTree, tree_between: FenwickTree,
-                 tree_greater: FenwickTree, biggest_number: int) -> None:
+    def __init__(self, data: List, biggest_number: int) -> None:
         """
-        Initialize a DataStats object with Fenwick Trees.
+        Initialize DataStats with given data and the biggest number.
 
         Args:
-            tree_less (FenwickTree): Fenwick Tree for less than queries.
-            tree_between (FenwickTree): Fenwick Tree for between queries.
-            tree_greater (FenwickTree): Fenwick Tree for greater than queries.
+            data (List): List of numbers.
+            biggest_number (int): The biggest number in the data.
         """
-        self.tree_less = tree_less
-        self.tree_between = tree_between
-        self.tree_greater = tree_greater
-        self.biggest_number = biggest_number
+
+        # Sort the data for efficient calculations
+        self.data = sorted(data)
+
+        # Size of the range including the biggest number
+        self.size = biggest_number + 1
+
+        # Dictionary to store the count of each element
+        self.elem_dict = {}
+
+        # Dictionaries to store accumulated counts for less and greater operations
+        self.less_dict = {}
+        self.greater_dict = {}
+
+        # Populate elem_dict with counts for each element
+        for i in self.data:
+            if i in self.elem_dict:
+                self.elem_dict[i] += 1
+            else:
+                self.elem_dict[i] = 1
+
+        # Calculate accumulated counts for numbers less than each element
+        acum = 0
+        for i in range(self.size):
+            self.less_dict[i] = acum
+            if i in self.elem_dict:
+                acum += self.elem_dict[i]
+
+        # Calculate accumulated counts for numbers greater than each element
+        acum = 0
+        for i in reversed(range(self.size)):
+            self.greater_dict[i] = acum
+            if i in self.elem_dict:
+                acum += self.elem_dict[i]
 
     def less(self, value: int) -> int:
-        """
-        Query how many numbers in the collection are less than a specific value.
 
-        Args:
-            value (int): The value to compare.
-
-        Returns:
-            int: The count of numbers less than the specified value.
-        """
-        return self.tree_less.query(value - 1)
-
-    def between(self, lower: int, upper: int) -> int:
-        """
-        Query how many numbers in the collection are within a specific range.
-
-        Args:
-            lower (int): The lower bound of the range.
-            upper (int): The upper bound of the range.
-
-        Returns:
-            int: The count of numbers within the specified range.
-        """
-
-        return self.tree_between.query(upper) - self.tree_between.query(lower - 1)
+        return self.less_dict[value]
 
     def greater(self, value: int) -> int:
-        """
-        Query how many numbers in the collection are greater than a specific value.
 
-        Args:
-            value (int): The value to compare.
+        return self.greater_dict[value]
 
-        Returns:
-            int: The count of numbers greater than the specified value.
-        """
-        return self.tree_greater.query(self.biggest_number) - self.tree_greater.query(value)
+    def between(self, lower: int, upper: int) -> int:
+
+        if upper in self.elem_dict:
+            return self.elem_dict[upper] + self.less_dict[upper] - self.less_dict[lower]
+        return self.less_dict[upper] - self.less_dict[lower]
 
 
 class DataCapture:
@@ -124,9 +80,6 @@ class DataCapture:
         Initialize a DataCapture object.
         """
         self.data = []
-        self.tree_less = FenwickTree(self.biggest_number)
-        self.tree_greater = FenwickTree(self.biggest_number)
-        self.tree_between = FenwickTree(self.biggest_number)
 
     def add(self, num: int) -> None:
         """
@@ -136,9 +89,6 @@ class DataCapture:
             num (int): The number to add.
         """
         self.data.append(num)
-        self.tree_less.update(num, 1)
-        self.tree_greater.update(num, 1)
-        self.tree_between.update(num, 1)
 
     def build_stats(self) -> DataStats:
         """
@@ -147,7 +97,7 @@ class DataCapture:
         Returns:
             DataStats: Statistics object for querying.
         """
-        return DataStats(self.tree_less, self.tree_between, self.tree_greater, self.biggest_number)
+        return DataStats(self.data, self.biggest_number)
 
 
 if __name__ == "__main__":
@@ -168,3 +118,4 @@ if __name__ == "__main__":
     print(stats.less(4))                    # should return 2
     print(stats.between(3, 6))   # should return 8
     print(stats.greater(4))                 # should return 5
+
