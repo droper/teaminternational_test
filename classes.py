@@ -18,6 +18,11 @@ class DataStats:
             data (List): List of numbers.
             biggest_number (int): The biggest number in the data.
         """
+        if not isinstance(data, list) or not all(isinstance(num, int) for num in data):
+            raise TypeError("Data must be a list of integers.")
+
+        if not isinstance(biggest_number, int):
+            raise TypeError("Biggest number must be an integer.")
 
         # Sort the data for efficient calculations
         self.data = sorted(data)
@@ -66,7 +71,10 @@ class DataStats:
         Returns:
             int: The count of numbers less than the specified value.
         """
-        if value > self.size or value < 0:
+        if not isinstance(value, int):
+            raise TypeError("Value must be an integer.")
+
+        if value > self.biggest_number or value < 0:
             raise ValueError(f"Number {value} outside range \n"
                              f"Range is: [0 - {self.biggest_number}]")
         return self.less_dict[value]
@@ -81,7 +89,10 @@ class DataStats:
         Returns:
             int: The count of numbers greater than the specified value.
         """
-        if value > self.size or value < 0:
+        if not isinstance(value, int):
+            raise TypeError("Value must be an integer.")
+
+        if value > self.biggest_number or value < 0:
             raise ValueError(f"Number {value} outside range \n"
                              f"Range is: [0 - {self.biggest_number}]")
         return self.greater_dict[value]
@@ -97,10 +108,15 @@ class DataStats:
         Returns:
             int: The count of numbers within the specified range.
         """
-        if lower > self.size or lower < 0:
+        if not isinstance(lower, int) or not isinstance(upper, int):
+            raise TypeError("Lower and upper bounds must be integers.")
+
+        if upper < lower:
+            raise ValueError(f"upper limit can't be lower than lower limit!!!")
+        if lower > self.biggest_number or lower < 0:
             raise ValueError(f"Number {lower} outside range \n"
                              f"Range is: [0 - {self.biggest_number}]")
-        elif upper > self.size or upper < 0:
+        elif upper > self.biggest_number or upper < 0:
             raise ValueError(f"Number {upper} outside range \n"
                              f"Range is: [0 - {self.biggest_number}]")
 
@@ -131,6 +147,12 @@ class DataCapture:
         Args:
             num (int): The number to add.
         """
+        if not isinstance(num, int):
+            raise TypeError(f"Invalid type for 'num'. Expected int, got {type(num).__name__}")
+
+        if num > self.biggest_number or num < 0:
+            raise ValueError(f"Number {num} outside range \n"
+                             f"Range is: [0 - {self.biggest_number}]")
         self.data.append(num)
 
     def build_stats(self) -> DataStats:

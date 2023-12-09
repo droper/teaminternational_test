@@ -4,7 +4,7 @@ Test for the challenge
 
 import unittest
 
-from classes import DataCapture, DataStats, FenwickTree
+from classes import DataCapture, DataStats
 
 
 class TestDataCapture(unittest.TestCase):
@@ -28,77 +28,101 @@ class TestDataCapture(unittest.TestCase):
         data_capture.add(42)
         data_stats = data_capture.build_stats()
 
-        # Assuming FenwickTree is correctly implemented
         self.assertEqual(data_stats.less(100), 1)
         self.assertEqual(data_stats.between(0, 50), 1)
         self.assertEqual(data_stats.greater(10), 1)
 
+    def test_build_stats_empty_capture(self):
+        """Test building stats from an empty DataCapture object."""
+        data_capture = DataCapture()
+        data_stats = data_capture.build_stats()
+        # Ensure the returned object is an instance of DataStats
+        self.assertIsInstance(data_stats, DataStats)
+        # Add more specific assertions based on expected behavior with an empty capture
+
+    def test_add_argument_type(self):
+        """Test that add method raises TypeError for non-integer argument."""
+        data_capture = DataCapture()
+        with self.assertRaises(TypeError):
+            data_capture.add("invalid")
+
 
 class TestDataStats(unittest.TestCase):
-    """Test cases for the DataStats class."""
-
-    def setUp(self):
-        """Set up a DataCapture object with some sample data."""
-        biggest_number = 9
-        tree_less = FenwickTree(biggest_number)
-        tree_between = FenwickTree(biggest_number)
-        tree_greater = FenwickTree(biggest_number)
-
-        tree_less.update(3, 1)
-        tree_less.update(5, 1)
-        tree_less.update(8, 1)
-
-        tree_between.update(3, 1)
-        tree_between.update(5, 1)
-        tree_between.update(8, 1)
-
-        tree_greater.update(3, 1)
-        tree_greater.update(5, 1)
-        tree_greater.update(8, 1)
-
-        self.stats = DataStats(tree_less, tree_between, tree_greater, biggest_number)
-
     def test_less(self):
-        """Test the less method of DataStats."""
-        self.assertEqual(self.stats.less(4), 1)  # one values (3, ) is less than 4
+        """
+        Test the less method of DataStats.
+        """
+        data = [3, 5, 8, 3, 2, 6, 8]
+        biggest_number = 9
+        data_stats = DataStats(data, biggest_number)
 
-    def test_between(self):
-        """Test the between method of DataStats."""
-        self.assertEqual(self.stats.between(3, 6), 2)   # two values (3, 5) between 3 and 6
+        # Test less method with valid input
+        self.assertEqual(data_stats.less(4), 3)  # Expected result: two values (3, 3) are less than 4
+        self.assertEqual(data_stats.less(9), 7)  # Expected result: all values are less than 10
+
+        # Test less method with invalid input (outside range)
+        with self.assertRaises(ValueError):
+            data_stats.less(-1)  # Expected result: ValueError for a number outside the range
+        with self.assertRaises(ValueError):
+            data_stats.less(10)  # Expected result: ValueError for a number outside the range
+
+        # Test invalid argument type (string)
+        with self.assertRaises(TypeError):
+            data_stats.less("invalid")
 
     def test_greater(self):
-        """Test the greater method of DataStats."""
-        self.assertEqual(self.stats.greater(4), 2)  # two values (5, 8) are greater than 4
+        """
+        Test the greater method of DataStats.
+        """
+        data = [3, 5, 8, 3, 2, 6, 8]
+        biggest_number = 9
+        data_stats = DataStats(data, biggest_number)
 
+        # Test greater method with valid input
+        self.assertEqual(data_stats.greater(4), 4)  # Expected result: four values (5, 6, 8, 8) are greater than 4
+        self.assertEqual(data_stats.greater(2), 6)  # Expected result: Six values are greater than 2 (all except 2)
 
-class TestFenwickTree(unittest.TestCase):
-    """Test cases for the FenwickTree class."""
-
-    def test_update_query(self):
-        """Test the update and query methods of FenwickTree."""
-        fenwick_tree = FenwickTree(10)
-        fenwick_tree.update(3, 2)
-        fenwick_tree.update(5, 1)
-        fenwick_tree.update(8, 3)
-
-        self.assertEqual(fenwick_tree.query(3), 2)
-        self.assertEqual(fenwick_tree.query(5), 3)
-        self.assertEqual(fenwick_tree.query(8), 6)
-        self.assertEqual(fenwick_tree.query(10), 6)
-
-    def test_invalid_update(self):
-        """Test that updating with an invalid index raises a ValueError."""
-        fenwick_tree = FenwickTree(5)
-
+        # Test greater method with invalid input (outside range)
         with self.assertRaises(ValueError):
-            fenwick_tree.update(6, 2)  # Index out of bounds
-
-    def test_invalid_query(self):
-        """Test that querying with an invalid index raises a ValueError."""
-        fenwick_tree = FenwickTree(5)
-
+            data_stats.greater(-1)  # Expected result: ValueError for a number outside the range
         with self.assertRaises(ValueError):
-            fenwick_tree.query(6)  # Index out of bounds
+            data_stats.greater(10)  # Expected result: ValueError for a number outside the range
+
+        # Test invalid argument type (float)
+        with self.assertRaises(TypeError):
+            data_stats.greater(3.5)
+
+    def test_between(self):
+        """
+        Test the between method of DataStats.
+        """
+        data = [3, 5, 8, 3, 2, 6, 8]
+        biggest_number = 9
+        data_stats = DataStats(data, biggest_number)
+
+        # Test between method with valid input
+        self.assertEqual(data_stats.between(3, 6), 4)  # Expected result: four values between 3 and 6
+        self.assertEqual(data_stats.between(0, 9), 7)  # Expected result: all values are between 0 and 10
+
+        # Test between method with invalid input (outside range)
+        with self.assertRaises(ValueError):
+            data_stats.between(3, -1)  # Expected result: ValueError for lower bound outside the range
+        with self.assertRaises(ValueError):
+            data_stats.between(3, 10)  # Expected result: ValueError for lower bound outside the range
+        with self.assertRaises(ValueError):
+            data_stats.between(-1, 7)  # Expected result: ValueError for upper bound outside the range
+        with self.assertRaises(ValueError):
+            data_stats.between(11, 15)  # Expected result: ValueError for upper bound outside the range
+        with self.assertRaises(ValueError):
+            data_stats.between(5, 4)  # Expected result: ValueError for upper bound outside the range
+
+        # Test invalid argument type (list)
+        with self.assertRaises(TypeError):
+            data_stats.between([3, 6], 8)
+
+        # Test invalid argument type (boolean)
+        with self.assertRaises(TypeError):
+            data_stats.between(2, "True")
 
 
 if __name__ == '__main__':
