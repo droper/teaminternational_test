@@ -22,6 +22,9 @@ class DataStats:
         # Sort the data for efficient calculations
         self.data = sorted(data)
 
+        # The biggest number in the range
+        self.biggest_number = biggest_number
+
         # Size of the range including the biggest number
         self.size = biggest_number + 1
 
@@ -54,15 +57,55 @@ class DataStats:
                 acum += self.elem_dict[i]
 
     def less(self, value: int) -> int:
+        """
+        Get the count of numbers less than a specified value.
 
+        Args:
+            value (int): The value to compare.
+
+        Returns:
+            int: The count of numbers less than the specified value.
+        """
+        if value > self.size or value < 0:
+            raise ValueError(f"Number {value} outside range \n"
+                             f"Range is: [0 - {self.biggest_number}]")
         return self.less_dict[value]
 
     def greater(self, value: int) -> int:
+        """
+        Get the count of numbers greater than a specified value.
 
+        Args:
+            value (int): The value to compare.
+
+        Returns:
+            int: The count of numbers greater than the specified value.
+        """
+        if value > self.size or value < 0:
+            raise ValueError(f"Number {value} outside range \n"
+                             f"Range is: [0 - {self.biggest_number}]")
         return self.greater_dict[value]
 
     def between(self, lower: int, upper: int) -> int:
+        """
+        Get the count of numbers within a specified range.
 
+        Args:
+            lower (int): The lower bound of the range.
+            upper (int): The upper bound of the range.
+
+        Returns:
+            int: The count of numbers within the specified range.
+        """
+        if lower > self.size or lower < 0:
+            raise ValueError(f"Number {lower} outside range \n"
+                             f"Range is: [0 - {self.biggest_number}]")
+        elif upper > self.size or upper < 0:
+            raise ValueError(f"Number {upper} outside range \n"
+                             f"Range is: [0 - {self.biggest_number}]")
+
+        # If the upper value is in the elements list then add the number of
+        # repetitions of the upper number
         if upper in self.elem_dict:
             return self.elem_dict[upper] + self.less_dict[upper] - self.less_dict[lower]
         return self.less_dict[upper] - self.less_dict[lower]
