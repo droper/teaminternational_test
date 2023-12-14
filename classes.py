@@ -2,7 +2,7 @@
 Challenge code
 """
 
-from typing import List
+from typing import Dict
 
 
 class DataStats:
@@ -10,7 +10,7 @@ class DataStats:
     Class that Calculates statistics for the data
     """
 
-    def __init__(self, data: List, biggest_number: int) -> None:
+    def __init__(self, data: Dict, total_numbers: int, biggest_number: int) -> None:
         """
         Initialize DataStats with given data and the biggest number.
 
@@ -18,14 +18,15 @@ class DataStats:
             data (List): List of numbers.
             biggest_number (int): The biggest number in the data.
         """
-        if not isinstance(data, list) or not all(isinstance(num, int) for num in data):
-            raise TypeError("Data must be a list of integers.")
-
+        if not isinstance(data, Dict):
+            raise TypeError("Data must be a dictionary")
+        if not isinstance(total_numbers, int):
+            raise TypeError("total_numbers must be an integer.")
         if not isinstance(biggest_number, int):
-            raise TypeError("Biggest number must be an integer.")
+            raise TypeError("biggest_number must be an integer.")
 
         # Sort the data for efficient calculations
-        self.data = sorted(data)
+        self.data = data
 
         # The biggest number in the range
         self.biggest_number = biggest_number
@@ -33,33 +34,17 @@ class DataStats:
         # Size of the range including the biggest number
         self.size = biggest_number + 1
 
-        # Dictionary to store the count of each element
-        self.elem_dict = {}
-
         # Dictionaries to store accumulated counts for less and greater operations
         self.less_dict = {}
         self.greater_dict = {}
 
-        # Populate elem_dict with counts for each element
-        for i in self.data:
-            if i in self.elem_dict:
-                self.elem_dict[i] += 1
-            else:
-                self.elem_dict[i] = 1
-
-        # Calculate accumulated counts for numbers less than each element
+        # Calculate accumulated counts for numbers less and greater than each element
         acum = 0
         for i in range(self.size):
             self.less_dict[i] = acum
-            if i in self.elem_dict:
-                acum += self.elem_dict[i]
-
-        # Calculate accumulated counts for numbers greater than each element
-        acum = 0
-        for i in reversed(range(self.size)):
-            self.greater_dict[i] = acum
-            if i in self.elem_dict:
-                acum += self.elem_dict[i]
+            if i in self.data:
+                acum += self.data[i]
+            self.greater_dict[i] = total_numbers - acum
 
     def less(self, value: int) -> int:
         """
@@ -122,8 +107,8 @@ class DataStats:
 
         # If the upper value is in the elements list then add the number of
         # repetitions of the upper number
-        if upper in self.elem_dict:
-            return self.elem_dict[upper] + self.less_dict[upper] - self.less_dict[lower]
+        if upper in self.data:
+            return self.data[upper] + self.less_dict[upper] - self.less_dict[lower]
         return self.less_dict[upper] - self.less_dict[lower]
 
 
@@ -138,7 +123,8 @@ class DataCapture:
         """
         Initialize a DataCapture object.
         """
-        self.data = []
+        self.data = {}
+        self.total_numbers = 0
 
     def add(self, num: int) -> None:
         """
@@ -153,7 +139,14 @@ class DataCapture:
         if num > self.biggest_number or num < 0:
             raise ValueError(f"Number {num} outside range \n"
                              f"Range is: [0 - {self.biggest_number}]")
-        self.data.append(num)
+
+        # Populate elem_dict with counts for each element
+        if num in self.data:
+            self.data[num] += 1
+        else:
+            self.data[num] = 1
+
+        self.total_numbers += 1
 
     def build_stats(self) -> DataStats:
         """
@@ -162,7 +155,7 @@ class DataCapture:
         Returns:
             DataStats: Statistics object for querying.
         """
-        return DataStats(self.data, self.biggest_number)
+        return DataStats(self.data, self.total_numbers, self.biggest_number)
 
 
 if __name__ == "__main__":
