@@ -62,6 +62,7 @@ class DataStats:
         if value > self.biggest_number or value < 0:
             raise ValueError(f"Number {value} outside range \n"
                              f"Range is: [0 - {self.biggest_number}]")
+
         return self.less_dict[value]
 
     def greater(self, value: int) -> int:
@@ -98,7 +99,7 @@ class DataStats:
 
         if upper < lower:
             raise ValueError(f"upper limit can't be lower than lower limit!!!")
-        if lower > self.biggest_number or lower < 0:
+        elif lower > self.biggest_number or lower < 0:
             raise ValueError(f"Number {lower} outside range \n"
                              f"Range is: [0 - {self.biggest_number}]")
         elif upper > self.biggest_number or upper < 0:

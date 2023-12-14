@@ -16,6 +16,15 @@ class TestDataCapture(unittest.TestCase):
         data_capture.add(42)
         self.assertIn(42, data_capture.data)
 
+    def test_add_number_correct_amount(self):
+        """Test that adding a valid number updates the data list."""
+        data_capture = DataCapture()
+        num = 1
+        data_capture.add(num)
+        data_capture.add(num)
+        data_capture.add(num)
+        self.assertEqual(3, data_capture.data[num])
+
     def test_add_invalid_number(self):
         """Test that adding an invalid number raises a ValueError."""
         data_capture = DataCapture()
@@ -52,9 +61,9 @@ class TestDataStats(unittest.TestCase):
         """
         Test the less method of DataStats.
         """
-        data = [3, 5, 8, 3, 2, 6, 8]
+        data = {3: 2, 5: 1, 8: 2, 2: 1, 6: 1}
         biggest_number = 9
-        data_stats = DataStats(data, biggest_number)
+        data_stats = DataStats(data, 7, biggest_number)
 
         # Test less method with valid input
         self.assertEqual(data_stats.less(4), 3)  # Expected result: two values (3, 3) are less than 4
@@ -74,9 +83,9 @@ class TestDataStats(unittest.TestCase):
         """
         Test the greater method of DataStats.
         """
-        data = [3, 5, 8, 3, 2, 6, 8]
+        data = {3: 2, 5: 1, 8: 2, 2: 1, 6: 1}
         biggest_number = 9
-        data_stats = DataStats(data, biggest_number)
+        data_stats = DataStats(data, 7, biggest_number)
 
         # Test greater method with valid input
         self.assertEqual(data_stats.greater(4), 4)  # Expected result: four values (5, 6, 8, 8) are greater than 4
@@ -96,9 +105,9 @@ class TestDataStats(unittest.TestCase):
         """
         Test the between method of DataStats.
         """
-        data = [3, 5, 8, 3, 2, 6, 8]
+        data = {3: 2, 5: 1, 8: 2, 2: 1, 6: 1}
         biggest_number = 9
-        data_stats = DataStats(data, biggest_number)
+        data_stats = DataStats(data, 7, biggest_number)
 
         # Test between method with valid input
         self.assertEqual(data_stats.between(3, 6), 4)  # Expected result: four values between 3 and 6
