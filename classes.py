@@ -5,6 +5,22 @@ Challenge code
 from typing import Dict
 
 
+def validate_range(value, biggest_number):
+    """
+    Validate if a given value is within the specified range.
+
+    Args:
+        value (int): The value to validate.
+        biggest_number (int): The upper bound of the range.
+
+    Raises:
+        ValueError: If the value is outside the specified range.
+    """
+    if value > biggest_number or value < 0:
+        raise ValueError(f"Number {value} outside range \n"
+                         f"Range is: [0 - {biggest_number}]")
+
+
 class DataStats:
     """
     Class that Calculates statistics for the data
@@ -59,9 +75,8 @@ class DataStats:
         if not isinstance(value, int):
             raise TypeError("Value must be an integer.")
 
-        if value > self.biggest_number or value < 0:
-            raise ValueError(f"Number {value} outside range \n"
-                             f"Range is: [0 - {self.biggest_number}]")
+        # Validate if value in range
+        validate_range(value, self.biggest_number)
 
         return self.less_dict[value]
 
@@ -78,9 +93,9 @@ class DataStats:
         if not isinstance(value, int):
             raise TypeError("Value must be an integer.")
 
-        if value > self.biggest_number or value < 0:
-            raise ValueError(f"Number {value} outside range \n"
-                             f"Range is: [0 - {self.biggest_number}]")
+        # Validate if value in range
+        validate_range(value, self.biggest_number)
+
         return self.greater_dict[value]
 
     def between(self, lower: int, upper: int) -> int:
@@ -98,13 +113,11 @@ class DataStats:
             raise TypeError("Lower and upper bounds must be integers.")
 
         if upper < lower:
-            raise ValueError(f"upper limit can't be lower than lower limit!!!")
-        elif lower > self.biggest_number or lower < 0:
-            raise ValueError(f"Number {lower} outside range \n"
-                             f"Range is: [0 - {self.biggest_number}]")
-        elif upper > self.biggest_number or upper < 0:
-            raise ValueError(f"Number {upper} outside range \n"
-                             f"Range is: [0 - {self.biggest_number}]")
+            raise ValueError("upper limit can't be lower than lower limit!!!")
+
+        # Validate if lower and upper in range
+        validate_range(lower, self.biggest_number)
+        validate_range(upper, self.biggest_number)
 
         # If the upper value is in the elements list then add the number of
         # repetitions of the upper number
@@ -115,7 +128,7 @@ class DataStats:
 
 class DataCapture:
     """
-    DataCapture object accepts numbers and returns an object for querying statistics about the inputs.
+    DataCapture object accepts numbers and returns an object with statistics about the inputs.
     """
 
     biggest_number = 999
@@ -137,9 +150,8 @@ class DataCapture:
         if not isinstance(num, int):
             raise TypeError(f"Invalid type for 'num'. Expected int, got {type(num).__name__}")
 
-        if num > self.biggest_number or num < 0:
-            raise ValueError(f"Number {num} outside range \n"
-                             f"Range is: [0 - {self.biggest_number}]")
+        # Validate if num in range
+        validate_range(num, self.biggest_number)
 
         # Populate elem_dict with counts for each element
         if num in self.data:
@@ -177,4 +189,3 @@ if __name__ == "__main__":
     print(stats.less(4))                    # should return 2
     print(stats.between(3, 6))   # should return 8
     print(stats.greater(4))                 # should return 5
-
